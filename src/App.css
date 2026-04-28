@@ -132,6 +132,15 @@ body {
   color: var(--color-text);
   width: 28px;
   height: 28px;
+  order: 3;
+}
+
+.navbar-container .navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  order: 2;
+  margin-left: auto;
 }
 
 .navbar-toggle svg {
@@ -255,8 +264,27 @@ body {
     height: 55px;
   }
 
+  .navbar-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    order: 2;
+  }
+
   .navbar-toggle {
     display: block;
+    order: 2;
+  }
+
+  .cart-icon-btn {
+    order: 1;
   }
 
   .navbar-menu {
@@ -274,6 +302,8 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s;
+    width: 100%;
+    order: 3;
   }
 
   .navbar-menu li {

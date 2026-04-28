@@ -170,7 +170,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
 
   return (
     <>
-      <section className="menu-section">
+      <section className="menu-section" id="copos-acai">
         <h2 className="menu-title">Copos de Açaí</h2>
         <div className="menu-grid">
           {products.map(product => (

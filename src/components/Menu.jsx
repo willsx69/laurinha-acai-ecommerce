@@ -95,11 +95,10 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
       observation,
       subtotal: getSubtotal(),
       deliveryFee: getDeliveryFee(),
-      total: getTotal()
+      total: getSubtotal()
     }
     setCart(prev => [...prev, item])
     closeModal()
-    setShowCart(true)
   }
 
   const removeFromCart = (itemId) => {
@@ -107,12 +106,22 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
   }
 
   const getCartTotal = () => {
-    return cart.reduce((sum, item) => sum + item.total, 0)
+    const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0)
+    const deliveryFee = getCartDeliveryFee()
+    return subtotal + deliveryFee
   }
 
   const getCartDeliveryFee = () => {
-    const deliveryFee = cart.find(item => item.selections.delivery)?.selections.delivery?.price || 0
-    return deliveryFee
+    const fees = cart.map(item => item.selections.delivery?.price).filter(p => p !== undefined && p !== null)
+    const uniqueFees = [...new Set(fees)]
+    
+    if (fees.length === 0) return 0
+    
+    if (uniqueFees.length === 1) {
+      return uniqueFees[0]
+    }
+    
+    return fees.reduce((sum, fee) => sum + fee, 0)
   }
 
   const handleCheckout = () => {
@@ -131,13 +140,24 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
       message += `%0A`
     })
     
-    if (cart[0]?.selections.delivery) {
-      message += `*Entrega:* ${cart[0].selections.delivery.name}%0A`
-    }
-    
+    const deliveries = cart.map(item => item.selections.delivery?.name).filter(Boolean)
+    const uniqueDeliveries = [...new Set(deliveries)]
     const uniqueDeliveryFee = getCartDeliveryFee()
-    if (uniqueDeliveryFee > 0) {
-      message += `*Taxa de Entrega:* R$ ${uniqueDeliveryFee.toFixed(2)}%0A`
+    
+    if (cart[0]?.selections.delivery) {
+      const uniqueDeliveries = [...new Set(cart.map(item => item.selections.delivery?.name).filter(Boolean))]
+      
+      if (uniqueDeliveries.length > 1) {
+        message += `*Atenção:* Entregas para bairros diferentes (%0A`
+        uniqueDeliveries.forEach((bairro, idx) => {
+          const fee = cart.find(item => item.selections.delivery?.name === bairro)?.selections.delivery?.price || 0
+          message += `- ${bairro}: R$ ${fee.toFixed(2)}%0A`
+        })
+        message += `)taxa total: R$ ${getCartDeliveryFee().toFixed(2)}%0A`
+      } else {
+        message += `*Entrega:* ${cart[0].selections.delivery.name}%0A`
+        message += `*Taxa de Entrega:* R$ ${getCartDeliveryFee().toFixed(2)}%0A`
+      }
     }
     
     message += `%0A*Total do pedido:* R$ ${getCartTotal().toFixed(2)}`
@@ -215,9 +235,9 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
                   ))}
                 </div>
 
-                {cart[0]?.selections.delivery && (
+                {cart.some(item => item.selections.delivery) && (
                   <div className="cart-total-row">
-                    <span>Taxa de Entrega ({cart[0].selections.delivery.name}):</span>
+                    <span>Taxa de Entrega:</span>
                     <span className="cart-subtotal-value">R$ {getCartDeliveryFee().toFixed(2)}</span>
                   </div>
                 )}

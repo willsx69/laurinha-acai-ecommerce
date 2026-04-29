@@ -23,6 +23,17 @@ body {
   color: #1a1a1a;
 }
 
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  margin-top: 55px;
+}
+
 .navbar {
   position: fixed;
   top: 0;
@@ -396,10 +407,6 @@ body {
   .navbar-cta-mobile:hover::after {
     width: 100%;
   }
-}
-
-main {
-  margin-top: 55px;
 }
 
 .hero {

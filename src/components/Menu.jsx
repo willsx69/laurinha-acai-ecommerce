@@ -87,10 +87,11 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
   }
 
   const handleAddToCart = () => {
+    const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2)
     const item = {
-      id: Date.now(),
+      id: uniqueId,
       product: selectedProduct,
-      quantity,
+      quantidade: quantidade,
       selections: { ...selections },
       observation,
       subtotal: getSubtotal(),
@@ -140,17 +141,14 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
       message += `%0A`
     })
     
-    const deliveries = cart.map(item => item.selections.delivery?.name).filter(Boolean)
-    const uniqueDeliveries = [...new Set(deliveries)]
-    const uniqueDeliveryFee = getCartDeliveryFee()
-    
     if (cart[0]?.selections.delivery) {
       const uniqueDeliveries = [...new Set(cart.map(item => item.selections.delivery?.name).filter(Boolean))]
       
       if (uniqueDeliveries.length > 1) {
         message += `*Atenção:* Entregas para bairros diferentes (%0A`
-        uniqueDeliveries.forEach((bairro, idx) => {
-          const fee = cart.find(item => item.selections.delivery?.name === bairro)?.selections.delivery?.price || 0
+        cart.forEach((item) => {
+          const bairro = item.selections.delivery?.name
+          const fee = item.selections.delivery?.price || 0
           message += `- ${bairro}: R$ ${fee.toFixed(2)}%0A`
         })
         message += `)taxa total: R$ ${getCartDeliveryFee().toFixed(2)}%0A`
@@ -163,7 +161,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
     message += `%0A*Total do pedido:* R$ ${getCartTotal().toFixed(2)}`
     
     const whatsappLink = `https://wa.me/559286320127?text=${message}`
-    window.open(whatsappLink, '_blank')
+    window.open(whatsappLink, '_self')
   }
 
   const canAdd = selections.calda && selections.delivery

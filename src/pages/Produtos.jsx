@@ -27,9 +27,9 @@ const deliveryAreas = [
 ]
 
 export default function Produtos() {
-  const { cart, setCart, showCart, setShowCart } = useCart()
+  const { cart, setCart, showCart, setShowCart, nextId, setNextId } = useCart()
   const [selectedProduct, setSelectedProduct] = useState(null)
-  const [quantity, setQuantity] = useState(1)
+  const [quantidade, setQuantidade] = useState(1)
   const [selections, setSelections] = useState({
     açai: '',
     calda: '',
@@ -40,7 +40,7 @@ export default function Produtos() {
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product)
-    setQuantity(1)
+    setQuantidade(1)
     setSelections({ açai: { id: 1, name: 'Só açaí', price: 0 }, calda: '', acompanhamento: [], delivery: null })
     setObservation('')
   }
@@ -70,14 +70,14 @@ export default function Produtos() {
 
   const closeModal = () => {
     setSelectedProduct(null)
-    setQuantity(1)
+    setQuantidade(1)
     setSelections({ açai: '', calda: '', acompanhamento: [], delivery: null })
     setObservation('')
   }
 
   const getSubtotal = () => {
     if (!selectedProduct) return 0
-    return selectedProduct.price * quantity
+    return selectedProduct.price * quantidade
   }
 
   const getDeliveryFee = () => {
@@ -90,8 +90,9 @@ export default function Produtos() {
 
   const handleAddToCart = () => {
     const item = {
+      id: nextId,
       product: selectedProduct,
-      quantity,
+      quantidade: quantidade,
       selections: { ...selections },
       observation,
       subtotal: getSubtotal(),
@@ -99,11 +100,8 @@ export default function Produtos() {
       total: getSubtotal()
     }
     setCart(prev => [...prev, item])
+    setNextId(prev => prev + 1)
     closeModal()
-  }
-
-  const removeFromCart = (itemId) => {
-    setCart(prev => prev.filter(item => item.id !== itemId))
   }
 
   const getCartTotal = () => {
@@ -123,44 +121,6 @@ export default function Produtos() {
     }
     
     return fees.reduce((sum, fee) => sum + fee, 0)
-  }
-
-  const handleCheckout = () => {
-    let message = `Olá, vim pelo site e quero pedir:%0A%0A`
-    
-    cart.forEach((item, index) => {
-      message += `*Item ${index + 1}:* ${item.product.name} x${item.quantity}%0A`
-      message += `*Açaí Mix:* ${item.selections.açai.name}%0A`
-      message += `*Calda:* ${item.selections.calda.name}%0A`
-      if (item.selections.acompanhamento.length > 0) {
-        message += `*Acompanhamentos:* ${item.selections.acompanhamento.map(a => a.name).join(', ')}%0A`
-      }
-      if (item.observation) {
-        message += `*Observação:* ${item.observation}%0A`
-      }
-      message += `%0A`
-    })
-    
-    if (cart[0]?.selections.delivery) {
-      const uniqueDeliveries = [...new Set(cart.map(item => item.selections.delivery?.name).filter(Boolean))]
-      
-      if (uniqueDeliveries.length > 1) {
-        message += `*Atenção:* Entregas para bairros diferentes (%0A`
-        uniqueDeliveries.forEach((bairro) => {
-          const fee = cart.find(item => item.selections.delivery?.name === bairro)?.selections.delivery?.price || 0
-          message += `- ${bairro}: R$ ${fee.toFixed(2)}%0A`
-        })
-        message += `)taxa total: R$ ${getCartDeliveryFee().toFixed(2)}%0A`
-      } else {
-        message += `*Entrega:* ${cart[0].selections.delivery.name}%0A`
-        message += `*Taxa de Entrega:* R$ ${getCartDeliveryFee().toFixed(2)}%0A`
-      }
-    }
-    
-    message += `%0A*Total do pedido:* R$ ${getCartTotal().toFixed(2)}`
-    
-    const whatsappLink = `https://wa.me/559286320127?text=${message}`
-    window.open(whatsappLink, '_blank')
   }
 
   const canAdd = selections.calda && selections.delivery
@@ -187,67 +147,13 @@ export default function Produtos() {
         ))}
       </div>
 
-      {cart.length > 0 && (
+      {cart.length > 0 && !showCart && (
         <div className="cart-bar" onClick={() => setShowCart(true)}>
           <div className="cart-info">
-            <span className="cart-count">{cart.reduce((sum, item) => sum + item.quantity, 0)} copos</span>
+            <span className="cart-count">{cart.reduce((sum, item) => sum + item.quantidade, 0)} copos</span>
             <span className="cart-total">Ver carrinho • R$ {getCartTotal().toFixed(2)}</span>
           </div>
           <button className="cart-btn">Fechar Pedido</button>
-        </div>
-      )}
-
-      {showCart && (
-        <div className="modal-overlay" onClick={() => setShowCart(false)}>
-          <div className="modal-content cart-modal" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowCart(false)}>×</button>
-            
-            <h2 className="modal-title">Seu Pedido</h2>
-            
-            {cart.length === 0 ? (
-              <p className="empty-cart">Seu carrinho está vazio</p>
-            ) : (
-              <>
-                <div className="cart-items">
-                  {cart.map(item => (
-                    <div key={item.id} className="cart-item">
-                      <div className="cart-item-header">
-                        <span className="cart-item-product">{item.product.name} x{item.quantity}</span>
-                        <button className="cart-item-remove" onClick={() => removeFromCart(item.id)}>×</button>
-                      </div>
-                      <div className="cart-item-details">
-                        <p><strong>Açaí Mix:</strong> {item.selections.açai.name}</p>
-                        <p><strong>Calda:</strong> {item.selections.calda.name}</p>
-                        {item.selections.acompanhamento.length > 0 && (
-                          <p><strong>Acompanhamentos:</strong> {item.selections.acompanhamento.map(a => a.name).join(', ')}</p>
-                        )}
-                        {item.observation && (
-                          <p><strong>Obs:</strong> {item.observation}</p>
-                        )}
-                      </div>
-                      <div className="cart-item-price">R$ {item.total.toFixed(2)}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {cart.some(item => item.selections.delivery) && (
-                  <div className="cart-total-row">
-                    <span>Taxa de Entrega:</span>
-                    <span className="cart-subtotal-value">R$ {getCartDeliveryFee().toFixed(2)}</span>
-                  </div>
-                )}
-
-                <div className="cart-total-row">
-                  <span>Total do pedido:</span>
-                  <span className="cart-total-value">R$ {getCartTotal().toFixed(2)}</span>
-                </div>
-
-                <button className="add-btn checkout-btn" onClick={handleCheckout}>
-                  Finalizar Pedido no WhatsApp
-                </button>
-              </>
-            )}
-          </div>
         </div>
       )}
 
@@ -264,15 +170,15 @@ export default function Produtos() {
               <div className="quantity-selector">
                 <button 
                   className="quantity-btn" 
-                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  disabled={quantity <= 1}
+                  onClick={() => setQuantidade(prev => Math.max(1, prev - 1))}
+                  disabled={quantidade <= 1}
                 >
                   -
                 </button>
-                <span className="quantity-value">{quantity}</span>
+                <span className="quantity-value">{quantidade}</span>
                 <button 
                   className="quantity-btn" 
-                  onClick={() => setQuantity(prev => prev + 1)}
+                  onClick={() => setQuantidade(prev => prev + 1)}
                 >
                   +
                 </button>

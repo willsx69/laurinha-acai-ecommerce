@@ -166,19 +166,4 @@
   .navbar-menu a::after {
     display: none;
   }
-
-  .menu-close-btn {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0.5rem;
-  }
-
-  .menu-close-btn button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #666;
-    cursor: pointer;
-    padding: 0.5rem;
-  }
 }

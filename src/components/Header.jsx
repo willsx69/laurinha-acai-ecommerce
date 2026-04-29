@@ -25,7 +25,7 @@ export default function Header() {
           </Link>
           
           <button 
-            className={`navbar-toggle animate-item ${menuOpen ? 'active' : ''}`} 
+            className={`navbar-toggle ${menuOpen ? 'active' : ''}`}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
           >
@@ -42,9 +42,6 @@ export default function Header() {
         </div>
         
         <ul className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
-          <div className="menu-close-btn">
-            <button onClick={() => setMenuOpen(false)} aria-label="Fechar menu">×</button>
-          </div>
           <li><Link to="/" onClick={() => setMenuOpen(false)}>Início</Link></li>
           <li><Link to="/produtos" onClick={() => setMenuOpen(false)}>Cardápio</Link></li>
           <li><Link to="/contato" onClick={() => setMenuOpen(false)}>Contato</Link></li>

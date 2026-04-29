@@ -42,9 +42,12 @@ export default function Header() {
         </div>
         
         <ul className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
-          <li className="animate-item" style={{animationDelay: '0.3s'}}><Link to="/" onClick={() => setMenuOpen(false)}>Início</Link></li>
-          <li className="animate-item" style={{animationDelay: '0.4s'}}><Link to="/produtos" onClick={() => setMenuOpen(false)}>Cardápio</Link></li>
-          <li className="animate-item" style={{animationDelay: '0.5s'}}><Link to="/contato" onClick={() => setMenuOpen(false)}>Contato</Link></li>
+          <div className="menu-close-btn">
+            <button onClick={() => setMenuOpen(false)} aria-label="Fechar menu">×</button>
+          </div>
+          <li><Link to="/" onClick={() => setMenuOpen(false)}>Início</Link></li>
+          <li><Link to="/produtos" onClick={() => setMenuOpen(false)}>Cardápio</Link></li>
+          <li><Link to="/contato" onClick={() => setMenuOpen(false)}>Contato</Link></li>
         </ul>
       </div>
     </nav>

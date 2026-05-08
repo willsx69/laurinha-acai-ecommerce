@@ -12,6 +12,7 @@ const caldaOptions = [
 ]
 
 const acompanhamentoOptions = [
+  { id: 5, name: 'Gotas de chocolate', price: 0, isNew: true },
   { id: 1, name: 'Amendoim em banda', price: 0 },
   { id: 2, name: 'Amendoim granulado', price: 0 },
   { id: 3, name: 'Flocos de arroz', price: 0 },
@@ -229,6 +230,7 @@ export default function Produtos() {
                       onClick={() => !isDisabled && handleAcompanhamentoSelect(option)}
                     >
                       <span className="option-name">{option.name}</span>
+                      {option.isNew && <span className="novidade-badge">novidade</span>}
                     </div>
                   )
                 })}

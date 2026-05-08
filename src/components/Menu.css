@@ -508,6 +508,18 @@
   color: var(--color-primary);
 }
 
+.novidade-badge {
+  background: #8B5CF6;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.35rem;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
 .checkout-btn {
   width: 100%;
   padding: 1rem;

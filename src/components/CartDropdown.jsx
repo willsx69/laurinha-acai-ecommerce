@@ -38,7 +38,7 @@ export default function CartDropdown({ isOpen, onClose }) {
     message += `*Taxa de Entrega:* R$ ${taxa.toFixed(2)}\n\n`
     message += `*TOTAL DO PEDIDO:* R$ ${(getTotalCarrinho() + taxa).toFixed(2)}`
     
-    window.open(`https://wa.me/559286320127?text=${encodeURIComponent(message)}`, '_self')
+    window.open(`https://wa.me/5592996214595?text=${encodeURIComponent(message)}`, '_self')
   }
 
   if (!isOpen) return null

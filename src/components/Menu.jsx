@@ -161,7 +161,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
     
     message += `%0A*Total do pedido:* R$ ${getCartTotal().toFixed(2)}`
     
-    const whatsappLink = `https://wa.me/559286320127?text=${message}`
+    const whatsappLink = `https://wa.me/5592996214595?text=${message}`
     window.open(whatsappLink, '_self')
   }
 

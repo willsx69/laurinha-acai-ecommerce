@@ -1,4 +1,4 @@
-export const WHATSAPP_NUMBER = '559286320127'
+export const WHATSAPP_NUMBER = '5592996214595'
 
 export const openWhatsApp = (message = 'Olá, gostaria de pedir um açaí') => {
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`

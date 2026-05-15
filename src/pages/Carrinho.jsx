@@ -38,7 +38,7 @@ export default function Carrinho() {
     message += `*Taxa de Entrega:* R$ ${taxa.toFixed(2)}%0A`
     message += `%0A*TOTAL DO PEDIDO:* R$ ${getTotalCarrinho().toFixed(2)}`
     
-    const whatsappLink = `https://wa.me/559286320127?text=${message}`
+    const whatsappLink = `https://wa.me/5592996214595?text=${message}`
     window.open(whatsappLink, '_self')
   }
 

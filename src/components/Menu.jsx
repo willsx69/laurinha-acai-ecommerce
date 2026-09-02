@@ -92,7 +92,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
     const item = {
       id: uniqueId,
       product: selectedProduct,
-      quantidade: quantidade,
+      quantidade: quantity,
       selections: { ...selections },
       observation,
       subtotal: getSubtotal(),
@@ -130,7 +130,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
     let message = `Olá, vim pelo site e quero pedir:%0A%0A`
     
     cart.forEach((item, index) => {
-      message += `*Item ${index + 1}:* ${item.product.name} x${item.quantity}%0A`
+      message += `*Item ${index + 1}:* ${item.product.name} x${item.quantidade}%0A`
       message += `*Açaí Mix:* ${item.selections.açai.name}%0A`
       message += `*Calda:* ${item.selections.calda.name}%0A`
       if (item.selections.acompanhamento.length > 0) {
@@ -194,7 +194,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
       {cart.length > 0 && (
         <div className="cart-bar" onClick={() => setShowCart(true)}>
           <div className="cart-info">
-            <span className="cart-count">{cart.reduce((sum, item) => sum + item.quantity, 0)} copos</span>
+            <span className="cart-count">{cart.reduce((sum, item) => sum + item.quantidade, 0)} copos</span>
             <span className="cart-total">Ver carrinho • R$ {getCartTotal().toFixed(2)}</span>
           </div>
           <button className="cart-btn">Fechar Pedido</button>
@@ -216,7 +216,7 @@ export default function Menu({ cart, setCart, showCart, setShowCart }) {
                   {cart.map(item => (
                     <div key={item.id} className="cart-item">
                       <div className="cart-item-header">
-                        <span className="cart-item-product">{item.product.name} x{item.quantity}</span>
+                        <span className="cart-item-product">{item.product.name} x{item.quantidade}</span>
                         <button className="cart-item-remove" onClick={() => removeFromCart(item.id)}>×</button>
                       </div>
                       <div className="cart-item-details">

@@ -1,4 +1,5 @@
 import { useCart } from '../context/CartContext'
+import { Link } from 'react-router-dom'
 import './Carrinho.css'
 
 export default function Carrinho() {
@@ -7,7 +8,8 @@ export default function Carrinho() {
     removerItem, 
     limparCarrinho, 
     getTotalCarrinho, 
-    getTaxaEntrega
+    getTaxaEntrega,
+    getTotalGeral
   } = useCart()
 
   const handleCheckout = () => {
@@ -15,7 +17,11 @@ export default function Carrinho() {
     
     cart.forEach((item, index) => {
       const qtd = item.quantidade || 1
-      message += `*Item ${index + 1}:* ${item.product?.name || 'Produto'} x${qtd}%0A`
+      const displayName = item.product?.name || item.produto?.name || 'Produto'
+      const preco = (item.total && item.quantidade) ? (item.total / item.quantidade) : (item.total || 0)
+      message += `*Item ${index + 1}:* ${displayName} x${qtd}`
+      if (preco) message += ` - R$ ${preco.toFixed(2)} cada`
+      message += `%0A`
       if (item.selections?.açai?.name) {
         message += `*Açaí Mix:* ${item.selections.açai.name}%0A`
       }
@@ -36,7 +42,7 @@ export default function Carrinho() {
     
     const taxa = getTaxaEntrega()
     message += `*Taxa de Entrega:* R$ ${taxa.toFixed(2)}%0A`
-    message += `%0A*TOTAL DO PEDIDO:* R$ ${getTotalCarrinho().toFixed(2)}`
+    message += `%0A*TOTAL DO PEDIDO:* R$ ${getTotalGeral().toFixed(2)}`
     
     const whatsappLink = `https://wa.me/5592996214595?text=${message}`
     window.open(whatsappLink, '_self')
@@ -45,11 +51,14 @@ export default function Carrinho() {
   return (
     <div className="cart-page">
       <div className="cart-container">
+        <Link to="/produtos" className="back-to-menu">← Voltar ao Cardápio</Link>
+        
         <h1 className="cart-title">Seu Carrinho</h1>
         
         {cart.length === 0 ? (
           <div className="empty-cart">
             <p>Seu carrinho está vazio</p>
+            <Link to="/produtos" className="btn-browse-cart">Ver Cardápio</Link>
           </div>
         ) : (
           <>
@@ -89,13 +98,18 @@ export default function Carrinho() {
             </div>
 
             <div className="cart-row">
+              <span>Subtotal:</span>
+              <span>R$ {getTotalCarrinho().toFixed(2)}</span>
+            </div>
+
+            <div className="cart-row">
               <span>Taxa de Entrega:</span>
               <span>R$ {getTaxaEntrega().toFixed(2)}</span>
             </div>
 
             <div className="cart-row total">
               <span>Total do pedido:</span>
-              <span>R$ {getTotalCarrinho().toFixed(2)}</span>
+              <span>R$ {getTotalGeral().toFixed(2)}</span>
             </div>
 
             <button className="checkout-btn" onClick={handleCheckout}>

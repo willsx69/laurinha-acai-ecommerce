@@ -6,8 +6,11 @@ export default function CartDropdown({ isOpen, onClose }) {
   const { 
     cart, 
     removerItem, 
+    aumentarQuantidade,
+    diminuiQuantidade,
     getTotalCarrinho, 
-    getTaxaEntrega
+    getTaxaEntrega,
+    getTotalGeral
   } = useCart()
 
   const handleCheckout = () => {
@@ -16,7 +19,11 @@ export default function CartDropdown({ isOpen, onClose }) {
     
     cart.forEach((item, index) => {
       const qtd = item.quantidade || 1
-      message += `*Item ${index + 1}:* ${item.product?.name || 'Produto'} x${qtd}\n`
+      const displayName = item.product?.name || item.produto?.name || 'Produto'
+      const preco = (item.total && item.quantidade) ? (item.total / item.quantidade) : (item.total || 0)
+      message += `*Item ${index + 1}:* ${displayName} x${qtd}`
+      if (preco) message += ` - R$ ${preco.toFixed(2)} cada`
+      message += `\n`
       if (item.selections?.açai?.name) {
         message += `*Açaí Mix:* ${item.selections.açai.name}\n`
       }
@@ -36,7 +43,7 @@ export default function CartDropdown({ isOpen, onClose }) {
     })
     
     message += `*Taxa de Entrega:* R$ ${taxa.toFixed(2)}\n\n`
-    message += `*TOTAL DO PEDIDO:* R$ ${(getTotalCarrinho() + taxa).toFixed(2)}`
+    message += `*TOTAL DO PEDIDO:* R$ ${getTotalGeral().toFixed(2)}`
     
     window.open(`https://wa.me/5592996214595?text=${encodeURIComponent(message)}`, '_self')
   }
@@ -70,29 +77,54 @@ export default function CartDropdown({ isOpen, onClose }) {
         ) : (
           <>
             <div className="cart-dropdown-items">
-              {cart.map(item => (
-                <div key={item.id} className="cart-item-mini">
-                  <div className="cart-item-info">
-                    <span className="item-name">{item.produto?.name || item.product?.name || 'Produto'}</span>
-                    <span className="item-details">
-                      {item.selections?.calda?.name && `• ${item.selections.calda.name}`}
-                    </span>
+              {cart.map(item => {
+                const detalhes = []
+                if (item.selections?.calda?.name) detalhes.push(item.selections.calda.name)
+                if (item.selections?.acompanhamento?.length > 0) {
+                  detalhes.push(item.selections.acompanhamento.map(a => a.name).join(', '))
+                }
+                if (item.selections?.delivery?.name) detalhes.push(`Entrega: ${item.selections.delivery.name}`)
+                if (item.selections?.açai?.name) detalhes.unshift(item.selections.açai.name)
+                return (
+                  <div key={item.id} className="cart-item-mini">
+                    <div className="cart-item-info">
+                      <span className="item-name">{item.produto?.name || item.product?.name || 'Produto'}</span>
+                      {detalhes.length > 0 && (
+                        <span className="item-details">{detalhes.join(' • ')}</span>
+                      )}
+                    </div>
+                    <div className="cart-item-actions">
+                      <div className="qty-controls">
+                        <button
+                          className="qty-btn"
+                          onClick={() => diminuiQuantidade(item.id)}
+                          aria-label="Diminuir"
+                        >
+                          −
+                        </button>
+                        <span className="qty-value">{item.quantidade || 1}</span>
+                        <button
+                          className="qty-btn"
+                          onClick={() => aumentarQuantidade(item.id)}
+                          aria-label="Aumentar"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="item-price">R$ {(item.total || 0).toFixed(2)}</span>
+                      <button 
+                        className="item-remove" 
+                        onClick={() => removerItem(item.id)}
+                        aria-label="Remover"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M6 6l12 12M6 18L18 6"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <div className="cart-item-actions">
-                    <span className="item-qty">x{item.quantidade || 1}</span>
-                    <span className="item-price">R$ {(item.total || 0).toFixed(2)}</span>
-                    <button 
-                      className="item-remove" 
-                      onClick={() => removerItem(item.id)}
-                      aria-label="Remover"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M6 6l12 12M6 18L18 6"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             <div className="cart-dropdown-footer">
@@ -108,7 +140,7 @@ export default function CartDropdown({ isOpen, onClose }) {
               )}
               <div className="cart-total">
                 <span>Total</span>
-                <span>R$ {(getTotalCarrinho() + getTaxaEntrega()).toFixed(2)}</span>
+                <span>R$ {getTotalGeral().toFixed(2)}</span>
               </div>
               
               <button className="btn-checkout-whatsapp" onClick={handleCheckout}>

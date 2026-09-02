@@ -3,7 +3,10 @@ import { useCart } from '../context/CartContext'
 import './Produtos.css'
 
 const products = [
-  { id: 1, name: '300ml', price: 12 },
+  { id: 1, name: '200 ml', price: 10, maxAcompanhamentos: 1 },
+  { id: 2, name: '300 ml', price: 13, maxAcompanhamentos: 2 },
+  { id: 3, name: '400 ml', price: 15, maxAcompanhamentos: 3 },
+  { id: 4, name: '500 ml', price: 17, maxAcompanhamentos: 3 },
 ]
 
 const caldaOptions = [
@@ -12,11 +15,13 @@ const caldaOptions = [
 ]
 
 const acompanhamentoOptions = [
-  { id: 5, name: 'Gotas de chocolate', price: 0, isNew: true },
-  { id: 1, name: 'Amendoim em banda', price: 0 },
-  { id: 2, name: 'Amendoim granulado', price: 0 },
-  { id: 3, name: 'Flocos de arroz', price: 0 },
-  { id: 4, name: 'Disquete', price: 0 },
+  { id: 1, name: 'Granola', price: 0 },
+  { id: 2, name: 'Leite Ninho', price: 0 },
+  { id: 3, name: 'Disquete', price: 0 },
+  { id: 4, name: 'Flocos de Arroz', price: 0 },
+  { id: 5, name: 'Amendoim em Banda', price: 0 },
+  { id: 6, name: 'Amendoim Granulado', price: 0 },
+  { id: 7, name: 'Chocoball Médio', price: 0 },
 ]
 
 const deliveryAreas = [
@@ -28,7 +33,7 @@ const deliveryAreas = [
 ]
 
 export default function Produtos() {
-  const { cart, setCart, showCart, setShowCart, nextId, setNextId } = useCart()
+  const { cart, setCart, showCart, setShowCart, nextId, setNextId, getTotalGeral, showNotification } = useCart()
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [quantidade, setQuantidade] = useState(1)
   const [selections, setSelections] = useState({
@@ -55,6 +60,8 @@ export default function Produtos() {
   }
 
   const handleAcompanhamentoSelect = (option) => {
+    if (!selectedProduct) return
+    const maxAcompanhamentos = selectedProduct.maxAcompanhamentos
     setSelections(prev => {
       const current = prev.acompanhamento
       const exists = current.find(o => o.id === option.id)
@@ -63,7 +70,7 @@ export default function Produtos() {
         return { ...prev, acompanhamento: current.filter(o => o.id !== option.id) }
       }
       
-      if (current.length >= 2) return prev
+      if (current.length >= maxAcompanhamentos) return prev
       
       return { ...prev, acompanhamento: [...current, option] }
     })
@@ -102,26 +109,8 @@ export default function Produtos() {
     }
     setCart(prev => [...prev, item])
     setNextId(prev => prev + 1)
+    showNotification(`${selectedProduct.name} adicionado ao carrinho!`)
     closeModal()
-  }
-
-  const getCartTotal = () => {
-    const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0)
-    const deliveryFee = getCartDeliveryFee()
-    return subtotal + deliveryFee
-  }
-
-  const getCartDeliveryFee = () => {
-    const fees = cart.map(item => item.selections.delivery?.price).filter(p => p !== undefined && p !== null)
-    const uniqueFees = [...new Set(fees)]
-    
-    if (fees.length === 0) return 0
-    
-    if (uniqueFees.length === 1) {
-      return uniqueFees[0]
-    }
-    
-    return fees.reduce((sum, fee) => sum + fee, 0)
   }
 
   const canAdd = selections.calda && selections.delivery
@@ -141,7 +130,7 @@ export default function Produtos() {
             </div>
             <div className="menu-item-info">
               <h3>{product.name}</h3>
-              <p className="menu-item-price">R$ {product.price},00</p>
+              <p className="menu-item-price"><span className="currency">R$</span> {product.price.toFixed(2)}</p>
             </div>
             <button className="menu-item-btn">Personalizar</button>
           </div>
@@ -152,7 +141,7 @@ export default function Produtos() {
         <div className="cart-bar" onClick={() => setShowCart(true)}>
           <div className="cart-info">
             <span className="cart-count">{cart.reduce((sum, item) => sum + item.quantidade, 0)} copos</span>
-            <span className="cart-total">Ver carrinho • R$ {getCartTotal().toFixed(2)}</span>
+            <span className="cart-total">Ver carrinho • R$ {getTotalGeral().toFixed(2)}</span>
           </div>
           <button className="cart-btn">Fechar Pedido</button>
         </div>
@@ -216,12 +205,12 @@ export default function Produtos() {
 
             <div className="modal-section">
               <h3 className="modal-section-title">
-                Acompanhamento <span className="optional">Opcional - até 2</span>
+                Acompanhamento <span className="optional">Opcional - até {selectedProduct.maxAcompanhamentos}</span>
               </h3>
               <div className="option-grid">
                 {acompanhamentoOptions.map(option => {
                   const isSelected = selections.acompanhamento.some(a => a.id === option.id)
-                  const isDisabled = !isSelected && selections.acompanhamento.length >= 2
+                  const isDisabled = !isSelected && selections.acompanhamento.length >= selectedProduct.maxAcompanhamentos
                   
                   return (
                     <div 

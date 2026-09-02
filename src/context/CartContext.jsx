@@ -13,20 +13,25 @@ export function CartProvider({ children }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
-      const savedNextId = localStorage.getItem('acai_next_id')
+      const savedNextId = parseInt(localStorage.getItem('acai_next_id'), 10)
+      let calculatedNextId = 1
+
       if (saved) {
         const parsed = JSON.parse(saved)
         if (Array.isArray(parsed)) {
           setCart(parsed)
-          const maxId = parsed.reduce((max, item) => item.id > max ? item.id : max, 0)
-          setNextId(maxId + 1)
+          const maxId = parsed.reduce((max, item) => (Number(item.id) > max ? Number(item.id) : max), 0)
+          calculatedNextId = maxId + 1
         } else {
           localStorage.removeItem(STORAGE_KEY)
         }
       }
-      if (savedNextId) {
-        setNextId(parseInt(savedNextId, 10) || 1)
+
+      if (savedNextId && savedNextId > calculatedNextId) {
+        calculatedNextId = savedNextId
       }
+
+      setNextId(calculatedNextId)
     } catch (e) {
       console.error('Erro ao carregar carrinho:', e)
       localStorage.removeItem(STORAGE_KEY)
@@ -103,16 +108,26 @@ export function CartProvider({ children }) {
   const getQuantidadeItens = () => cart.reduce((sum, item) => sum + (item.quantidade || 1), 0)
 
   const getTaxaEntrega = () => {
-    if (cart.length === 0) return 0
-    return cart[0]?.selections?.delivery?.price || 0
+    const fees = cart
+      .map(item => item.selections?.delivery?.price)
+      .filter(p => p !== undefined && p !== null)
+
+    if (fees.length === 0) return 0
+
+    const uniqueFees = [...new Set(fees)]
+    if (uniqueFees.length === 1) return uniqueFees[0]
+
+    return fees.reduce((sum, fee) => sum + fee, 0)
   }
+
+  const getTotalGeral = () => getTotalCarrinho() + getTaxaEntrega()
 
   return (
     <CartContext.Provider value={{
       cart, setCart, showCart, setShowCart,
       adicionarItem, removerItem, limparCarrinho,
       aumentarQuantidade, diminuiQuantidade,
-      getTotalCarrinho, getQuantidadeItens, getTaxaEntrega,
+      getTotalCarrinho, getQuantidadeItens, getTaxaEntrega, getTotalGeral,
       nextId, setNextId,
       notification
     }}>
